@@ -22,6 +22,11 @@ namespace gl
 		void Link() const;
 		void Active() const;
 
+		void SetValue(const std::string& name, bool value) const;
+		void SetValue(const std::string& name, int value) const;
+		void SetValue(const std::string& name, float value) const;
+		void SetMatrix(const std::string& name, const float* mat) const;
+
 		GLuint program() const { return program_; }
 
 	private:
@@ -95,6 +100,26 @@ namespace gl
 	{
 		assert(program_ != 0);
 		glUseProgram(program_);
+	}
+
+	inline void Shader::SetValue(const std::string& name, bool value) const
+	{
+		glUniform1i(glGetUniformLocation(program_, name.c_str()), static_cast<int>(value));
+	}
+
+	inline void Shader::SetValue(const std::string& name, int value) const
+	{
+		glUniform1i(glGetUniformLocation(program_, name.c_str()), value);
+	}
+
+	inline void Shader::SetValue(const std::string& name, float value) const
+	{
+		glUniform1f(glGetUniformLocation(program_, name.c_str()), value);
+	}
+
+	inline void Shader::SetMatrix(const std::string& name, const float* mat) const
+	{
+		glUniformMatrix4fv(glGetUniformLocation(program_, name.c_str()), 1, GL_FALSE, mat);
 	}
 
 	void Shader::__LoadShader(const std::string& shader_path, std::string& shader_source) const
