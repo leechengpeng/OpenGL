@@ -10,10 +10,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader\triangle_vs.glsl">
+    <None Include="Shader\skybox_vs.glsl">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shader\triangle_fs.glsl">
+    <None Include="Shader\skybox_fs.glsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
