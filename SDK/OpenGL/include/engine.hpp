@@ -1,0 +1,91 @@
+#pragma once
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <exception>
+#include <vector>
+#include "renderpass.hpp"
+
+namespace gl
+{
+	class Engine
+	{
+	public:
+		Engine();
+		virtual ~Engine();
+
+		void Init(GLuint width, GLuint height, void(*framebufferSizeCallback)(GLFWwindow*, int, int));
+		void Render();
+
+		void AddPass(RenderPass* pass);
+
+	private:
+		GLFWwindow*					mWindow;
+		std::vector<RenderPass*>	mRenderPasses;
+	};
+
+	Engine::Engine() : mWindow(nullptr)
+	{
+
+	}
+
+	Engine::~Engine()
+	{
+
+	}
+
+	void Engine::Init(GLuint width, GLuint height, void(*framebufferSizeCallback)(GLFWwindow*, int, int))
+	{
+		glfwInit();
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+#endif
+
+		mWindow = glfwCreateWindow(width, height, "LearnOpenGL", NULL, NULL);
+		if (mWindow == nullptr)
+		{
+			glfwTerminate();
+			throw std::exception("Failed to init GLFW...");
+		}
+
+		glfwMakeContextCurrent(mWindow);
+		glfwSetFramebufferSizeCallback(mWindow, framebufferSizeCallback);
+
+		// glad: load all OpenGL function pointers
+		// ---------------------------------------
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			throw std::exception("Failed to init GLAD...");
+		}
+	}
+
+	void Engine::Render()
+	{
+		for (auto& pass : mRenderPasses)
+		{
+			pass->Init();
+		}
+
+		while (!glfwWindowShouldClose(mWindow))
+		{
+			// processInput(mWindow);
+			for (auto& pass : mRenderPasses)
+			{
+				pass->Update();
+			}
+
+			glfwSwapBuffers(mWindow);
+			glfwPollEvents();
+		}
+
+		glfwTerminate();
+	}
+
+	inline void Engine::AddPass(RenderPass* pass)
+	{
+		mRenderPasses.emplace_back(pass);
+	}
+}
