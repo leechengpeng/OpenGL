@@ -7,16 +7,21 @@
 
 namespace gl
 {
+	using FrameBufferSizeFunc = void(*)(GLFWwindow*, int, int);
+	using CursorPosCallFunc = void(*)(GLFWwindow*, double, double);
+
 	class Engine
 	{
 	public:
 		Engine();
 		virtual ~Engine();
 
-		void Init(GLuint width, GLuint height, void(*framebufferSizeCallback)(GLFWwindow*, int, int));
+		void Init(GLuint width, GLuint height);
 		void Render();
 
-		void AddPass(RenderPass* pass);
+		void AddPass(RenderPass* tPass);
+		void SetFrameBufferSizeCallback(FrameBufferSizeFunc tCallback);
+		void SetCursorPosCallback(CursorPosCallFunc tCallback);
 
 	private:
 		GLFWwindow*					mWindow;
@@ -33,7 +38,7 @@ namespace gl
 
 	}
 
-	void Engine::Init(GLuint width, GLuint height, void(*framebufferSizeCallback)(GLFWwindow*, int, int))
+	void Engine::Init(GLuint width, GLuint height)
 	{
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -50,9 +55,7 @@ namespace gl
 			glfwTerminate();
 			throw std::exception("Failed to init GLFW...");
 		}
-
 		glfwMakeContextCurrent(mWindow);
-		glfwSetFramebufferSizeCallback(mWindow, framebufferSizeCallback);
 
 		// glad: load all OpenGL function pointers
 		// ---------------------------------------
@@ -87,5 +90,24 @@ namespace gl
 	inline void Engine::AddPass(RenderPass* pass)
 	{
 		mRenderPasses.emplace_back(pass);
+	}
+
+
+	inline void Engine::SetFrameBufferSizeCallback(FrameBufferSizeFunc tCallback)
+	{
+		if (!mWindow)
+		{
+			throw std::exception("Please call Engine::Init() first...");
+		}
+		glfwSetFramebufferSizeCallback(mWindow, tCallback);
+	}
+
+	inline void Engine::SetCursorPosCallback(CursorPosCallFunc tCallback)
+	{
+		if (!mWindow)
+		{
+			throw std::exception("Please call Engine::Init() first...");
+		}
+		glfwSetCursorPosCallback(mWindow, tCallback);
 	}
 }

@@ -1,7 +1,8 @@
 #include "engine.hpp"
 #include "shader.hpp"
-#include "camera.hpp"
+#include "controller.hpp"
 #include <vector>
+#include <functional>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -44,7 +45,7 @@ namespace gl
 	class Skybox : public RenderPass
 	{
 	public:
-		Skybox() : mVao(), mCubemapTex(), mCamera(glm::vec3(0.0f, 0.0f, 3.0f))
+		Skybox() : mVao(), mCubemapTex()
 		{
 
 		}
@@ -113,8 +114,8 @@ namespace gl
 				"../Resource/Skybox/left.jpg",
 				"../Resource/Skybox/top.jpg",
 				"../Resource/Skybox/bottom.jpg",
-				"../Resource/Skybox/front.jpg",
-				"../Resource/Skybox/back.jpg"
+				"../Resource/Skybox/back.jpg",
+				"../Resource/Skybox/front.jpg"
 			};
 			mCubemapTex = loadCubemap(faces);
 
@@ -125,9 +126,11 @@ namespace gl
 
 		virtual void Update() override
 		{
+			auto& camera = Controller::Instance()->GetCamera();
+
 			glm::mat4 model_mat = glm::mat4(1.0f);
-			glm::mat4 projection = glm::perspective(glm::radians(mCamera.Zoom), (float)1280 / (float)720, 0.1f, 100.0f);
-			glm::mat4 view = mCamera.GetViewMatrix();
+			glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)1280 / (float)720, 0.1f, 100.0f);
+			glm::mat4 view = camera.GetViewMatrix();
 
 			mShader.Active();
 			mShader.SetMatrix("model", &model_mat[0][0]);
@@ -145,7 +148,6 @@ namespace gl
 		GLuint mCubemapTex;
 		GLuint mVao;
 		Shader mShader;
-		Camera mCamera;
 	};
 }
 
@@ -158,11 +160,20 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	gl::Controller::Instance()->MouseCallback(xpos, ypos);
+}
 
 int main()
 {
 	gl::Engine engine;
-	engine.Init(1280, 720, framebuffer_size_callback);
+	engine.Init(1280, 720);
+	engine.SetFrameBufferSizeCallback(framebuffer_size_callback);
+	// engine.SetCursorPosCallback(gl::Controller::Instance()->MouseCallback);
+	engine.SetCursorPosCallback(mouse_callback);
 
 	gl::Skybox skybox;
 	engine.AddPass(&skybox);
