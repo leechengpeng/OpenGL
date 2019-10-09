@@ -38,6 +38,21 @@ namespace gl
 			mCamera.ProcessMouseMovement(xoffset, yoffset);
 		}
 
+		void ProcessInput(GLFWwindow* window, GLfloat tDeltaTime)
+		{
+			if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+				glfwSetWindowShouldClose(window, true);
+
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+				mCamera.ProcessKeyboard(FORWARD, tDeltaTime);
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+				mCamera.ProcessKeyboard(BACKWARD, tDeltaTime);
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+				mCamera.ProcessKeyboard(LEFT, tDeltaTime);
+			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+				mCamera.ProcessKeyboard(RIGHT, tDeltaTime);
+		}
+
 		const Camera& GetCamera() const { return mCamera; }
 
 	protected:

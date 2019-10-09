@@ -3,7 +3,9 @@
 #include <GLFW/glfw3.h>
 #include <exception>
 #include <vector>
+#include <functional>
 #include "renderpass.hpp"
+#include "controller.hpp"
 
 namespace gl
 {
@@ -24,6 +26,8 @@ namespace gl
 		void SetCursorPosCallback(CursorPosCallFunc tCallback);
 
 	private:
+		GLfloat						mDeltaTime;
+		GLfloat						mLastFrame;
 		GLFWwindow*					mWindow;
 		std::vector<RenderPass*>	mRenderPasses;
 	};
@@ -74,10 +78,14 @@ namespace gl
 
 		while (!glfwWindowShouldClose(mWindow))
 		{
+			float currentFrame = glfwGetTime();
+			mDeltaTime = currentFrame - mLastFrame;
+			mLastFrame = currentFrame;
+			Controller::Instance()->ProcessInput(mWindow, mDeltaTime);
+
 			glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			// processInput(mWindow);
 			for (auto& pass : mRenderPasses)
 			{
 				pass->Update();

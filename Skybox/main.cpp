@@ -114,8 +114,8 @@ namespace gl
 				"../Resource/Skybox/left.jpg",
 				"../Resource/Skybox/top.jpg",
 				"../Resource/Skybox/bottom.jpg",
-				"../Resource/Skybox/back.jpg",
-				"../Resource/Skybox/front.jpg"
+				"../Resource/Skybox/front.jpg",
+				"../Resource/Skybox/back.jpg"
 			};
 			mCubemapTex = loadCubemap(faces);
 
