@@ -17,3 +17,6 @@
 *.obj
 *.enc
 *.user
+*.opendb
+*.db-shm
+*.db-wal
