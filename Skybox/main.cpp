@@ -12,26 +12,31 @@
 
 namespace gl
 {
-	unsigned int loadCubemap(std::vector<std::string> faces)
+	unsigned int loadCubemap(const std::vector<std::string>& tFaces)
 	{
-		unsigned int textureID;
-		glGenTextures(1, &textureID);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+		unsigned int texID;
+		glGenTextures(1, &texID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
 
-		int width, height, nrChannels;
-		for (unsigned int i = 0; i < faces.size(); i++)
+		for (unsigned int i = 0; i < tFaces.size(); i++)
 		{
-			unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+			int width, height, nrChannels;
+			auto data = stbi_load(tFaces[i].c_str(), &width, &height, &nrChannels, 0);
 			if (data)
 			{
+				//GL_TEXTURE_CUBE_MAP_POSITIVE_X	右
+				//GL_TEXTURE_CUBE_MAP_NEGATIVE_X	左
+				//GL_TEXTURE_CUBE_MAP_POSITIVE_Y	上
+				//GL_TEXTURE_CUBE_MAP_NEGATIVE_Y	下
+				//GL_TEXTURE_CUBE_MAP_POSITIVE_Z	后
+				//GL_TEXTURE_CUBE_MAP_NEGATIVE_Z	前
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-				stbi_image_free(data);
 			}
 			else
 			{
-				std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-				stbi_image_free(data);
+				std::cout << "Cubemap texture failed to load at path: " << tFaces[i] << std::endl;
 			}
+			stbi_image_free(data);
 		}
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -39,7 +44,7 @@ namespace gl
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-		return textureID;
+		return texID;
 	}
 
 	class Skybox : public RenderPass
@@ -130,7 +135,8 @@ namespace gl
 
 			glm::mat4 model_mat = glm::mat4(1.0f);
 			glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)1280 / (float)720, 0.1f, 100.0f);
-			glm::mat4 view = camera.GetViewMatrix();
+			//glm::mat4 view = camera.GetViewMatrix();
+			glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 
 			mShader.Active();
 			mShader.SetMatrix("model", &model_mat[0][0]);
@@ -172,7 +178,6 @@ int main()
 	gl::Engine engine;
 	engine.Init(1280, 720);
 	engine.SetFrameBufferSizeCallback(framebuffer_size_callback);
-	// engine.SetCursorPosCallback(gl::Controller::Instance()->MouseCallback);
 	engine.SetCursorPosCallback(mouse_callback);
 
 	gl::Skybox skybox;
