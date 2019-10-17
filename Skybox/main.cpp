@@ -13,60 +13,119 @@ namespace gl
 	class Skybox : public RenderPass
 	{
 	public:
-		Skybox() : mVao(), mCubemapTex()
+		Skybox() : mSkyboxVao(), mCubemapTex()
 		{
 
 		}
 
 		virtual void Init() override
 		{
-			float skyboxVertices[] = {        
-				-1.0f,  1.0f, -1.0f,
-				-1.0f, -1.0f, -1.0f,
-				1.0f, -1.0f, -1.0f,
-				1.0f, -1.0f, -1.0f,
-				1.0f,  1.0f, -1.0f,
-				-1.0f,  1.0f, -1.0f,
-
-				-1.0f, -1.0f,  1.0f,
-				-1.0f, -1.0f, -1.0f,
-				-1.0f,  1.0f, -1.0f,
-				-1.0f,  1.0f, -1.0f,
-				-1.0f,  1.0f,  1.0f,
-				-1.0f, -1.0f,  1.0f,
-
-				1.0f, -1.0f, -1.0f,
-				1.0f, -1.0f,  1.0f,
-				1.0f,  1.0f,  1.0f,
-				1.0f,  1.0f,  1.0f,
-				1.0f,  1.0f, -1.0f,
-				1.0f, -1.0f, -1.0f,
-
-				-1.0f, -1.0f,  1.0f,
-				-1.0f,  1.0f,  1.0f,
-				1.0f,  1.0f,  1.0f,
-				1.0f,  1.0f,  1.0f,
-				1.0f, -1.0f,  1.0f,
-				-1.0f, -1.0f,  1.0f,
-
-				-1.0f,  1.0f, -1.0f,
-				1.0f,  1.0f, -1.0f,
-				1.0f,  1.0f,  1.0f,
-				1.0f,  1.0f,  1.0f,
-				-1.0f,  1.0f,  1.0f,
-				-1.0f,  1.0f, -1.0f,
-
-				-1.0f, -1.0f, -1.0f,
-				-1.0f, -1.0f,  1.0f,
-				1.0f, -1.0f, -1.0f,
-				1.0f, -1.0f, -1.0f,
-				-1.0f, -1.0f,  1.0f,
-				1.0f, -1.0f,  1.0f
-			};
-
-			glGenVertexArrays(1, &mVao);
-			glBindVertexArray(mVao);
+			glGenVertexArrays(1, &mCubeVao);
+			glBindVertexArray(mCubeVao);
 			{
+				float cubeVertices[] = {
+					// positions          // texture Coords
+					-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+					0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+					0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+					0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+					-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+					-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+					-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+					0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+					0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+					0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+					-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+					-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+					-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+					-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+					-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+					-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+					-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+					-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+					0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+					0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+					0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+					0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+					0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+					0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+					-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+					0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+					0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+					0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+					-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+					-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+					-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+					0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+					0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+					0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+					-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+					-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+				};
+
+				unsigned int vbo;
+				glGenBuffers(1, &vbo);
+				glBindBuffer(GL_ARRAY_BUFFER, vbo);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+				glEnableVertexAttribArray(1);
+				glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+			}
+			glBindVertexArray(0);
+
+			glGenVertexArrays(1, &mSkyboxVao);
+			glBindVertexArray(mSkyboxVao);
+			{
+				float skyboxVertices[] = {
+					-1.0f,  1.0f, -1.0f,
+					-1.0f, -1.0f, -1.0f,
+					1.0f, -1.0f, -1.0f,
+					1.0f, -1.0f, -1.0f,
+					1.0f,  1.0f, -1.0f,
+					-1.0f,  1.0f, -1.0f,
+
+					-1.0f, -1.0f,  1.0f,
+					-1.0f, -1.0f, -1.0f,
+					-1.0f,  1.0f, -1.0f,
+					-1.0f,  1.0f, -1.0f,
+					-1.0f,  1.0f,  1.0f,
+					-1.0f, -1.0f,  1.0f,
+
+					1.0f, -1.0f, -1.0f,
+					1.0f, -1.0f,  1.0f,
+					1.0f,  1.0f,  1.0f,
+					1.0f,  1.0f,  1.0f,
+					1.0f,  1.0f, -1.0f,
+					1.0f, -1.0f, -1.0f,
+
+					-1.0f, -1.0f,  1.0f,
+					-1.0f,  1.0f,  1.0f,
+					1.0f,  1.0f,  1.0f,
+					1.0f,  1.0f,  1.0f,
+					1.0f, -1.0f,  1.0f,
+					-1.0f, -1.0f,  1.0f,
+
+					-1.0f,  1.0f, -1.0f,
+					1.0f,  1.0f, -1.0f,
+					1.0f,  1.0f,  1.0f,
+					1.0f,  1.0f,  1.0f,
+					-1.0f,  1.0f,  1.0f,
+					-1.0f,  1.0f, -1.0f,
+
+					-1.0f, -1.0f, -1.0f,
+					-1.0f, -1.0f,  1.0f,
+					1.0f, -1.0f, -1.0f,
+					1.0f, -1.0f, -1.0f,
+					-1.0f, -1.0f,  1.0f,
+					1.0f, -1.0f,  1.0f
+				};
+
 				GLuint vbo;
 				glGenBuffers(1, &vbo);
 				glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -76,6 +135,7 @@ namespace gl
 			}
 			glBindVertexArray(0);
 
+			mCubeTex = LoadTexture("../Resource/Texture/brick.jpg");
 			std::vector<std::string> faces
 			{
 				"../Resource/Skybox/right.jpg",
@@ -85,11 +145,17 @@ namespace gl
 				"../Resource/Skybox/front.jpg",
 				"../Resource/Skybox/back.jpg"
 			};
-			mCubemapTex = loadCubemap(faces);
+			mCubemapTex = LoadCubemap(faces);
 
 			mShader.AttachShader(GL_VERTEX_SHADER, "Shader/skybox_vs.glsl");
 			mShader.AttachShader(GL_FRAGMENT_SHADER, "Shader/skybox_fs.glsl");
 			mShader.Link();
+
+			mCubeShader.AttachShader(GL_VERTEX_SHADER, "Shader/cube_vs.glsl");
+			mCubeShader.AttachShader(GL_FRAGMENT_SHADER, "Shader/cube_fs.glsl");
+			mCubeShader.Link();
+
+			glEnable(GL_DEPTH_TEST);
 		}
 
 		virtual void Update() override
@@ -97,25 +163,50 @@ namespace gl
 			auto& camera = Controller::Instance()->GetCamera();
 
 			glm::mat4 modelMat = glm::mat4(1.0f);
-			glm::mat4 viewMat = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+			//glm::mat4 viewMat = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+			glm::mat4 viewMat = camera.GetViewMatrix();
 			glm::mat4 projMat = glm::perspective(glm::radians(camera.Zoom), (float)1280 / (float)720, 0.1f, 100.0f);
 
-			mShader.Active();
-			mShader.SetMatrix("model", &modelMat[0][0]);
-			mShader.SetMatrix("view", &viewMat[0][0]);
-			mShader.SetMatrix("projection", &projMat[0][0]);
-
-			glBindVertexArray(mVao);
+			// 首先渲染天空盒再渲染物体，这样的效率比较低（模型可能会挡住大部分天空盒，但天空盒不可见的部分还是被渲染了一遍）
+			// 因为上述原因，我们可以采用提前深度测试(Early Depth Testing)的方法来消除上述问题
+			// cube
+			mCubeShader.Active();
+			mCubeShader.SetMatrix("model", &modelMat[0][0]);
+			mCubeShader.SetMatrix("view", &viewMat[0][0]);
+			mCubeShader.SetMatrix("projection", &projMat[0][0]);
+			glBindVertexArray(mCubeVao);
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTex);
+			glBindTexture(GL_TEXTURE_2D, mCubeTex);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glBindVertexArray(0);
+
+			// change depth function so depth test passes when values are equal to depth buffer's content
+			glDepthFunc(GL_LEQUAL);  
+			{
+				// skybox
+				viewMat = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
+				mShader.Active();
+				mShader.SetMatrix("model", &modelMat[0][0]);
+				mShader.SetMatrix("view", &viewMat[0][0]);
+				mShader.SetMatrix("projection", &projMat[0][0]);
+
+				glBindVertexArray(mSkyboxVao);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTex);
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+				glBindVertexArray(0);
+			}
+			// set depth function back to default
+			glDepthFunc(GL_LESS);
 		}
 
 	private:
+		GLuint mCubeVao;
+		GLuint mCubeTex;
+		GLuint mSkyboxVao;
 		GLuint mCubemapTex;
-		GLuint mVao;
 		Shader mShader;
+		Shader mCubeShader;
 	};
 }
 

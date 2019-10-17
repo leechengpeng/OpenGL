@@ -56,7 +56,7 @@ namespace gl
 		const Camera& GetCamera() const { return mCamera; }
 
 	protected:
-		Controller() : mCamera(glm::vec3(0.0f, 0.0f, 0.0f)), mFirstMouse(true) {}
+		Controller() : mCamera(glm::vec3(0.0f, 0.0f, 3.0f)), mFirstMouse(true) {}
 
 	private:
 		GLdouble	mLastX;

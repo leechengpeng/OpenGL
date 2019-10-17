@@ -16,5 +16,11 @@
     <None Include="Shader\skybox_fs.glsl">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Shader\cube_vs.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\cube_fs.glsl">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
