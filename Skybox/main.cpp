@@ -24,48 +24,48 @@ namespace gl
 			glBindVertexArray(mCubeVao);
 			{
 				float cubeVertices[] = {
-					// positions          // texture Coords
-					-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-					0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-					0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-					0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-					-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-					-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+					// positions          // normals
+					-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+					0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+					0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+					0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+					-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+					-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-					-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-					0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-					0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-					0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-					-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-					-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+					-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+					0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+					0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+					0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+					-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+					-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-					-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-					-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-					-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-					-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-					-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-					-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+					-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+					-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+					-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+					-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+					-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+					-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-					0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-					0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-					0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-					0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-					0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-					0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+					0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+					0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+					0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+					0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+					0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+					0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-					-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-					0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-					0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-					0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-					-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-					-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+					-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+					0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+					0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+					0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+					-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+					-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-					-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-					0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-					0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-					0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-					-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-					-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+					-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+					0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+					0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+					0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+					-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+					-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 				};
 
 				unsigned int vbo;
@@ -73,9 +73,9 @@ namespace gl
 				glBindBuffer(GL_ARRAY_BUFFER, vbo);
 				glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
 				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 				glEnableVertexAttribArray(1);
-				glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 			}
 			glBindVertexArray(0);
 
@@ -135,7 +135,6 @@ namespace gl
 			}
 			glBindVertexArray(0);
 
-			mCubeTex = LoadTexture("../Resource/Texture/brick.jpg");
 			std::vector<std::string> faces
 			{
 				"../Resource/Skybox/right.jpg",
@@ -170,20 +169,22 @@ namespace gl
 			// 首先渲染天空盒再渲染物体，这样的效率比较低（模型可能会挡住大部分天空盒，但天空盒不可见的部分还是被渲染了一遍）
 			// 因为上述原因，我们可以采用提前深度测试(Early Depth Testing)的方法来消除上述问题
 			// cube
-			mCubeShader.Active();
-			mCubeShader.SetMatrix("model", &modelMat[0][0]);
-			mCubeShader.SetMatrix("view", &viewMat[0][0]);
-			mCubeShader.SetMatrix("projection", &projMat[0][0]);
-			glBindVertexArray(mCubeVao);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, mCubeTex);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-			glBindVertexArray(0);
+			{
+				mCubeShader.Active();
+				mCubeShader.SetMatrix("model", &modelMat[0][0]);
+				mCubeShader.SetMatrix("view", &viewMat[0][0]);
+				mCubeShader.SetMatrix("projection", &projMat[0][0]);
+				glBindVertexArray(mCubeVao);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTex);
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+				glBindVertexArray(0);
+			}
 
+			// skybox
 			// change depth function so depth test passes when values are equal to depth buffer's content
 			glDepthFunc(GL_LEQUAL);  
 			{
-				// skybox
 				viewMat = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
 				mShader.Active();
 				mShader.SetMatrix("model", &modelMat[0][0]);
@@ -202,7 +203,6 @@ namespace gl
 
 	private:
 		GLuint mCubeVao;
-		GLuint mCubeTex;
 		GLuint mSkyboxVao;
 		GLuint mCubemapTex;
 		Shader mShader;
