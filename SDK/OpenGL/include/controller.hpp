@@ -29,8 +29,8 @@ namespace gl
 				mFirstMouse = false;
 			}
 
-			float xoffset = xpos - mLastX;
-			float yoffset = mLastY - ypos; // reversed since y-coordinates go from bottom to top
+			auto xoffset = xpos - mLastX;
+			auto yoffset = mLastY - ypos; // reversed since y-coordinates go from bottom to top
 
 			mLastX = xpos;
 			mLastY = ypos;

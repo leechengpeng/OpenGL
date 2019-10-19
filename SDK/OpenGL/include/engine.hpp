@@ -78,7 +78,7 @@ namespace gl
 
 		while (!glfwWindowShouldClose(mWindow))
 		{
-			float currentFrame = glfwGetTime();
+			auto currentFrame = glfwGetTime();
 			mDeltaTime = currentFrame - mLastFrame;
 			mLastFrame = currentFrame;
 			Controller::Instance()->ProcessInput(mWindow, mDeltaTime);
