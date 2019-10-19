@@ -174,10 +174,14 @@ namespace gl
 				mCubeShader.SetMatrix("model", &modelMat[0][0]);
 				mCubeShader.SetMatrix("view", &viewMat[0][0]);
 				mCubeShader.SetMatrix("projection", &projMat[0][0]);
+				mCubeShader.SetValue("camPos", camera.Position);
+				// render
 				glBindVertexArray(mCubeVao);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTex);
-				glDrawArrays(GL_TRIANGLES, 0, 36);
+				{
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTex);
+					glDrawArrays(GL_TRIANGLES, 0, 36);
+				}
 				glBindVertexArray(0);
 			}
 
@@ -191,10 +195,13 @@ namespace gl
 				mShader.SetMatrix("view", &viewMat[0][0]);
 				mShader.SetMatrix("projection", &projMat[0][0]);
 
+				// render
 				glBindVertexArray(mSkyboxVao);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTex);
-				glDrawArrays(GL_TRIANGLES, 0, 36);
+				{
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTex);
+					glDrawArrays(GL_TRIANGLES, 0, 36);
+				}
 				glBindVertexArray(0);
 			}
 			// set depth function back to default

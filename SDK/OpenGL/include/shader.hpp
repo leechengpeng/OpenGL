@@ -24,6 +24,7 @@ namespace gl
 		void SetValue(const std::string& name, bool value) const;
 		void SetValue(const std::string& name, int value) const;
 		void SetValue(const std::string& name, float value) const;
+		void SetValue(const std::string& name, const glm::vec3& value) const;
 		void SetMatrix(const std::string& name, const float* mat) const;
 
 		GLuint program() const { return program_; }
@@ -114,6 +115,11 @@ namespace gl
 	inline void Shader::SetValue(const std::string& name, float value) const
 	{
 		glUniform1f(glGetUniformLocation(program_, name.c_str()), value);
+	}
+
+	inline void Shader::SetValue(const std::string& name, const glm::vec3& value) const
+	{
+		glUniform3fv(glGetUniformLocation(program_, name.c_str()), 1, &value[0]);
 	}
 
 	inline void Shader::SetMatrix(const std::string& name, const float* mat) const
