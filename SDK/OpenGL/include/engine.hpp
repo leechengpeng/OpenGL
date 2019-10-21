@@ -53,7 +53,7 @@ namespace gl
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
 
-		mWindow = glfwCreateWindow(width, height, "LearnOpenGL", NULL, NULL);
+		mWindow = glfwCreateWindow(width, height, "OpenGL", NULL, NULL);
 		if (mWindow == nullptr)
 		{
 			glfwTerminate();
