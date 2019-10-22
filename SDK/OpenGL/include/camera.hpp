@@ -66,11 +66,10 @@ public:
 		return glm::lookAt(Position, Position + Front, Up);
 	}
 
-	void Reset(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
+	void Reset(const glm::vec3& position, const glm::vec3& up)
 	{
-		Up = up;
-		Front = front;
-		Position = pos;
+		Position = position;
+		WorldUp = up;
 		updateCameraVectors();
 	}
 

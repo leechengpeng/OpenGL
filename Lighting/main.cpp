@@ -35,7 +35,7 @@ namespace gl
 			mShader.AttachShader(GL_FRAGMENT_SHADER, "Shader/lighting_fs.glsl");
 			mShader.Link();
 
-			Controller::Instance()->ResetCamera(glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 0.f, -1.f));
+			Controller::Instance()->ResetCamera(glm::vec3(0.f, 1.f, 2.f), glm::vec3(0.f, 1.f, 0.f));
 		}
 
 		virtual void Update() override
@@ -51,6 +51,7 @@ namespace gl
 			mShader.SetMatrix("model", &modelMat[0][0]);
 			mShader.SetMatrix("view", &viewMat[0][0]);
 			mShader.SetMatrix("projection", &projMat[0][0]);
+			mShader.SetValue("camPosition", camera.Position);
 			// render
 			glBindVertexArray(mFloorVao);
 			{

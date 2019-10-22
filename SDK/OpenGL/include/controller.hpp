@@ -54,7 +54,7 @@ namespace gl
 		}
 
 		const Camera& GetCamera() const { return mCamera; }
-		void ResetCamera(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up) { mCamera.Reset(pos, front, up); }
+		void ResetCamera(const glm::vec3& pos, const glm::vec3& up) { mCamera.Reset(pos, up); }
 
 	protected:
 		Controller() : mCamera(glm::vec3(0.0f, 0.0f, 3.0f)), mFirstMouse(true) {}
