@@ -15,18 +15,17 @@ void main()
 
     // 环境光照（全局光照的简单替代品）
     float ambientStrength = 0.1f;
-    vec3 ambient = ambientStrength * lightColor;
+	float ambient = ambientStrength;
 
     // 漫反射
     vec3 l = normalize(lightPos - fragPos);
-    vec3 diffuse = max(dot(n, l), 0.f) * lightColor;
+    float diffuse = max(dot(n, l), 0.f);
 
     // 镜面发射
     vec3 v = normalize(camPosition - fragPos);
     vec3 r = reflect(-l, n);
     float specStrength = 0.5f;
-    vec3 specular = specStrength * pow(max(dot(v, r), 0.f), 4) * lightColor;
+    float specular = specStrength * pow(max(dot(v, r), 0.f), 4);
 
-    FragColor = vec4((ambient + diffuse + specular), 1.0);
-    //FragColor = vec4((ambient + diffuse), 1.0);
+    FragColor = vec4((ambient + diffuse + specular) * lightColor, 1.0);
 }
