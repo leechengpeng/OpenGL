@@ -4,7 +4,7 @@ in vec3 fragPos;
 out vec4 FragColor;
 
 vec3 lightColor = vec3(1.f, 1.0f, 1.f);
-vec3 lightPos = vec3(0.f, 1.f, -3.f);
+vec3 lightPos = vec3(0.f, 1.f, 0.f);
 
 uniform vec3 camPosition;
 
@@ -23,9 +23,22 @@ void main()
 
     // 镜面发射
     vec3 v = normalize(camPosition - fragPos);
-    vec3 r = reflect(-l, n);
-    float specStrength = 0.5f;
-    float specular = specStrength * pow(max(dot(v, r), 0.f), 4);
+    float specStrength = 1.f;
+    float specular = 0.0;
+    // Phong
+    bool phong_model = false;
+    if (phong_model)
+    {
+        vec3 r = reflect(-l, n);
+        specular = specStrength * pow(max(dot(v, r), 0.f), 8);
+    }
+    // Blinn-Phong
+    else
+    {
+        vec3 h = normalize(l + v);
+        specular = specStrength * pow(max(dot(n, h), 0.0), 32.0);
+    }
 
-    FragColor = vec4((ambient + diffuse + specular) * lightColor, 1.0);
+    // FragColor = vec4((ambient + diffuse + specular) * lightColor, 1.0);
+    FragColor = vec4((ambient + specular) * lightColor, 1.0);
 }

@@ -15,12 +15,13 @@ namespace gl
 			glBindVertexArray(mFloorVao);
 			{
 				float floor[] = {
-					-3.f, 0.f, 3.f,
-					-3.f, 0.f, -3.f,
-					3.f, 0.f, -3.f,
-					3.f, 0.f, -3.f,
-					3.f, 0.f, 3.f,
-					-3.f, 0.f, 3.f,
+					 10.0f, -0.5f,  10.0f,
+					-10.0f, -0.5f,  10.0f,
+					-10.0f, -0.5f, -10.0f,
+
+					 10.0f, -0.5f,  10.0f,
+					-10.0f, -0.5f, -10.0f,
+					 10.0f, -0.5f, -10.0f,
 				};
 				GLuint vbo;
 				glGenBuffers(1, &vbo);
@@ -35,7 +36,7 @@ namespace gl
 			mShader.AttachShader(GL_FRAGMENT_SHADER, "Shader/lighting_fs.glsl");
 			mShader.Link();
 
-			Controller::Instance()->ResetCamera(glm::vec3(0.f, 1.f, 2.f), glm::vec3(0.f, 1.f, 0.f));
+			//Controller::Instance()->ResetCamera(glm::vec3(0.f, 1.f, 2.f), glm::vec3(0.f, 1.f, 0.f));
 		}
 
 		virtual void Update() override
