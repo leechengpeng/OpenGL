@@ -15,12 +15,12 @@ namespace gl
 			glBindVertexArray(mFloorVao);
 			{
 				float floor[] = {
-					-1.f, 0.f, 1.f,
-					-1.f, 0.f, -1.f,
-					1.f, 0.f, -1.f,
-					1.f, 0.f, -1.f,
-					1.f, 0.f, 1.f,
-					-1.f, 0.f, 1.f,
+					-3.f, 0.f, 3.f,
+					-3.f, 0.f, -3.f,
+					3.f, 0.f, -3.f,
+					3.f, 0.f, -3.f,
+					3.f, 0.f, 3.f,
+					-3.f, 0.f, 3.f,
 				};
 				GLuint vbo;
 				glGenBuffers(1, &vbo);
