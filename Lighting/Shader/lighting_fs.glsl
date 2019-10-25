@@ -4,7 +4,7 @@ in vec3 fragPos;
 out vec4 FragColor;
 
 vec3 lightColor = vec3(1.f, 1.0f, 1.f);
-vec3 lightPos = vec3(0.f, 1.f, 0.f);
+vec3 lightPos = vec3(0.f, 0.f, 0.f);
 
 uniform vec3 camPosition;
 
@@ -26,7 +26,7 @@ void main()
     float specStrength = 1.f;
     float specular = 0.0;
     // Phong
-    bool phong_model = false;
+    bool phong_model = true;
     if (phong_model)
     {
         vec3 r = reflect(-l, n);
