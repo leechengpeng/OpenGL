@@ -12,11 +12,11 @@ void main()
 {
     // 从G缓冲中获取数据
     vec3 FragPos = texture(gPosition, texCoords).rgb;
-    vec3 Normal = texture(gNormal, texCoords).rgb;
-    vec3 Albedo = texture(gAlbedoSpec, texCoords).rgb;
+    vec3 Normal  = texture(gNormal, texCoords).rgb;
+    vec3 Albedo  = texture(gAlbedoSpec, texCoords).rgb;
     float Specular = texture(gAlbedoSpec, texCoords).a;
 
-    // 然后和往常一样地计算光照
+    // // 然后和往常一样地计算光照
     vec3 lighting = Albedo * 0.1; // 硬编码环境光照分量
     vec3 v = normalize(viewPos - FragPos);
     {

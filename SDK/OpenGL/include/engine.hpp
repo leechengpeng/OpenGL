@@ -67,6 +67,9 @@ namespace gl
 		{
 			throw std::exception("Failed to init GLAD...");
 		}
+
+		// Options
+		// glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
 	void Engine::Render()

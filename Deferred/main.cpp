@@ -3,7 +3,6 @@
 #include "common.hpp"
 #include "controller.hpp"
 
-
 GLuint SCR_WIDTH = 1280;
 GLuint SCR_HEIGHT = 720;
 
@@ -18,30 +17,39 @@ namespace gl
 	public:
 		virtual void Init() override
 		{
-			// G-Buffer
+			glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+			glEnable(GL_DEPTH_TEST);
+
+			// G-Buffer, 3 texture:
+			// 1. Position (RGB, 16F)
+			// 2. Normals (RGB, 16F)
+			// 3. Color (RGB) + Specular(A)
 			glGenFramebuffers(1, &gBuffer);
 			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 			{
-				// Position Buffer: GL_RGB16F
+				// Position Buffer
 				glGenTextures(1, &gPos);
 				glBindTexture(GL_TEXTURE_2D, gPos);
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);				
+				//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPos, 0);
-				// Normal Buffer: GL_RGB16F
+				// Normal Buffer
 				glGenTextures(1, &gNormal);
 				glBindTexture(GL_TEXTURE_2D, gNormal);
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
-				// Color & Specular color buffer: GL_RGBA
+				// Color & Specular color buffer
 				glGenTextures(1, &gAlbedoSpec);
 				glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); 
+
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
 
 				// Tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
@@ -49,11 +57,11 @@ namespace gl
 				glDrawBuffers(3, attachments);
 
 				// Depth buffer?
-				//GLuint rboDepth;
-				//glGenRenderbuffers(1, &rboDepth);
-				//glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-				//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
-				//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+				GLuint rboDepth;
+				glGenRenderbuffers(1, &rboDepth);
+				glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 
 				// Check the framebuffer status
 				if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -95,13 +103,14 @@ namespace gl
 		{
 			auto& camera = Controller::Instance()->GetCamera();
 
+			// Geometry Pass: render scene's geometry/color data into gbuffer
 			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 			{
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 				glm::mat4 model = glm::mat4(1.0f);
 				glm::mat4 view = camera.GetViewMatrix();
-				glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)1280 / (float)720, 0.1f, 100.0f);
+				glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 				mShader.Active();
 				mShader.SetMatrix("model", &model[0][0]);
 				mShader.SetMatrix("view", &view[0][0]);
@@ -151,13 +160,19 @@ namespace gl
 			mShader.AttachShader(GL_VERTEX_SHADER, "Shaders/deferred_shading.vs.glsl");
 			mShader.AttachShader(GL_FRAGMENT_SHADER, "Shaders/deferred_shading.fs.glsl");
 			mShader.Link();
+
+			// Set samplers
+			mShader.Active();
+			mShader.SetValue("gPosition", 0);
+			mShader.SetValue("gNormal", 1);
+			mShader.SetValue("gAlbedoSpec", 2);
 		}
 
 		virtual void Update() override
 		{
-			auto& camera = Controller::Instance()->GetCamera();
-
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			auto& camera = Controller::Instance()->GetCamera();
 
 			mShader.Active();
 			mShader.SetValue("viewPos", camera.Position);
@@ -171,6 +186,11 @@ namespace gl
 			glBindVertexArray(mQuadVao);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			glBindVertexArray(0);
+
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Write to default framebuffer
+			glBlitFramebuffer(0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
 	private:
@@ -200,8 +220,10 @@ int main()
 
 	gl::GeometryPass GeometryPass;
 	engine.AddPass(&GeometryPass);
+
 	gl::DeferredLightingPass DeferredLightingPass;
 	engine.AddPass(&DeferredLightingPass);
+
 	engine.Render();
 
 	return 0;
