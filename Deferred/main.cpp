@@ -1,7 +1,10 @@
 #include "engine.hpp"
 #include "shader.hpp"
+#include "model.hpp"
 #include "common.hpp"
 #include "controller.hpp"
+#include <vector>
+#include <random>
 
 GLuint SCR_WIDTH = 1280;
 GLuint SCR_HEIGHT = 720;
@@ -15,6 +18,11 @@ namespace gl
 	class GeometryPass : public RenderPass
 	{
 	public:
+		GeometryPass() : mShader(), mModel("../Resource/Model/Nanosuit/nanosuit.obj")
+		{
+
+		}
+
 		virtual void Init() override
 		{
 			glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -69,32 +77,23 @@ namespace gl
 			}
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			// floor data buffer
-			glGenVertexArrays(1, &mFloorVao);
-			glBindVertexArray(mFloorVao);
-			{
-				float floor[] = {
-					10.0f, -0.5f,  10.0f,
-					-10.0f, -0.5f,  10.0f,
-					-10.0f, -0.5f, -10.0f,
-
-					10.0f, -0.5f,  10.0f,
-					-10.0f, -0.5f, -10.0f,
-					10.0f, -0.5f, -10.0f,
-				};
-				GLuint vbo;
-				glGenBuffers(1, &vbo);
-				glBindBuffer(GL_ARRAY_BUFFER, vbo);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(floor), &floor, GL_STATIC_DRAW);
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			}
-			glBindVertexArray(0);
-
 			// Init shader
 			mShader.AttachShader(GL_VERTEX_SHADER, "Shaders/g_buffer.vs.glsl");
 			mShader.AttachShader(GL_FRAGMENT_SHADER, "Shaders/g_buffer.fs.glsl");
 			mShader.Link();
+
+			// Init model position
+			mModelPositions.push_back(glm::vec3(-3.0, -3.0, -3.0));
+			mModelPositions.push_back(glm::vec3(0.0, -3.0, -3.0));
+			mModelPositions.push_back(glm::vec3(3.0, -3.0, -3.0));
+			mModelPositions.push_back(glm::vec3(-3.0, -3.0, 0.0));
+			mModelPositions.push_back(glm::vec3(0.0, -3.0, 0.0));
+			mModelPositions.push_back(glm::vec3(3.0, -3.0, 0.0));
+			mModelPositions.push_back(glm::vec3(-3.0, -3.0, 3.0));
+			mModelPositions.push_back(glm::vec3(0.0, -3.0, 3.0));
+			mModelPositions.push_back(glm::vec3(3.0, -3.0, 3.0));
+
+			Controller::Instance()->ResetCamera(glm::vec3(0.f, 0.f, 5.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 
 		virtual void Update() override
@@ -106,25 +105,30 @@ namespace gl
 			{
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				glm::mat4 model = glm::mat4(1.0f);
 				glm::mat4 view = camera.GetViewMatrix();
 				glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 				mShader.Active();
-				mShader.SetMatrix("model", &model[0][0]);
 				mShader.SetMatrix("view", &view[0][0]);
 				mShader.SetMatrix("projection", &projection[0][0]);
 
-				glBindVertexArray(mFloorVao);
-				glDrawArrays(GL_TRIANGLES, 0, 6);
-				glBindVertexArray(0);
+				for (auto& pos : mModelPositions)
+				{
+					glm::mat4 model = glm::mat4(1.0f);
+					model = glm::translate(model, pos);
+					model = glm::scale(model, glm::vec3(0.25f));
+					mShader.SetMatrix("model", &model[0][0]);
 
+					mModel.Draw(mShader);
+				}
+				mModel.Draw(mShader);
 			}
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
 	private:
-		GLuint mFloorVao;
+		Model  mModel;
 		Shader mShader;
+		std::vector<glm::vec3> mModelPositions;
 	};
 
 	class DeferredLightingPass : public RenderPass
@@ -164,6 +168,23 @@ namespace gl
 			mShader.SetValue("gPosition", 0);
 			mShader.SetValue("gNormal", 1);
 			mShader.SetValue("gAlbedoSpec", 2);
+
+			// Init Light
+			constexpr GLuint NUM_LIGHTS = 32;
+			Lights.resize(NUM_LIGHTS);
+
+			srand(13);
+			for (auto& light : Lights)
+			{
+				// Cal slightly ramdom offsets
+				GLfloat x = ((rand() % 100) / 100.0) * 6.0 - 3.0;
+				GLfloat y = ((rand() % 100) / 100.0) * 6.0 - 4.0;
+				GLfloat z = ((rand() % 100) / 100.0) * 6.0 - 3.0;
+				GLfloat r = ((rand() % 100) / 200.0) + 0.5;
+				GLfloat g = ((rand() % 100) / 200.0) + 0.5;
+				GLfloat b = ((rand() % 100) / 200.0) + 0.5;
+				light = std::make_pair<glm::vec3, glm::vec3>(glm::vec3(x, y, z), glm::vec3(r, g, b));
+			}
 		}
 
 		virtual void Update() override
@@ -181,6 +202,19 @@ namespace gl
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
 
+			// Set lights
+			for (GLuint i = 0; i < Lights.size(); ++i)
+			{
+				mShader.SetValue(("lights[" + std::to_string(i) + "].Position").c_str(), Lights[i].first);
+				mShader.SetValue(("lights[" + std::to_string(i) + "].Color").c_str(), Lights[i].second);
+
+				const GLfloat constant = 1.0; // Note that we don't send this to the shader, we assume it is always 1.0 (in our case)
+				const GLfloat linear = 0.7;
+				const GLfloat quadratic = 1.8;
+				mShader.SetValue(("lights[" + std::to_string(i) + "].Linear").c_str(), linear);
+				mShader.SetValue(("lights[" + std::to_string(i) + "].Quadratic").c_str(), quadratic);
+			}
+
 			glBindVertexArray(mQuadVao);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			glBindVertexArray(0);
@@ -194,6 +228,8 @@ namespace gl
 	private:
 		GLuint mQuadVao;
 		Shader mShader;
+
+		std::vector<std::pair<glm::vec3, glm::vec3>> Lights;
 	};
 }
 
