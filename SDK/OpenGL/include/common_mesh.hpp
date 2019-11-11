@@ -1,41 +1,38 @@
 #pragma once
 #include <glad/glad.h>
-#include "shader.hpp"
-#include "common.hpp"
 
 namespace gl
 {
-	class BaseModel
+	class BaseMesh
 	{
 	public:
-		BaseModel() : mVao(0)
+		BaseMesh() : mVao(0)
 		{
 		}
 
-		virtual void Draw(const Shader& shader) const = 0;
+		virtual void Draw() const = 0;
 
 	protected:
 		GLuint mVao;
 	};
 
-	class Plane : public BaseModel
+	class PlaneMesh : public BaseMesh
 	{
 	public:
-		Plane()
+		PlaneMesh()
 		{
 			glGenVertexArrays(1, &mVao);
 			glBindVertexArray(mVao);
 			{
-				assert(mVao);
 				float floor[] = {
 					// vertex           // normal		// uv
-					 1.0f, 0.f,  1.0f,  0.f, 1.f, 0.f,  1.f, 1.f,
+					1.0f, 0.f,  1.0f,  0.f, 1.f, 0.f,  1.f, 1.f,
 					-1.0f, 0.f,  1.0f,  0.f, 1.f, 0.f,  0.f, 1.f,
 					-1.0f, 0.f, -1.0f,  0.f, 1.f, 0.f,  0.f, 0.f,
 
-					 1.0f, 0.f,  1.0f,  0.f, 1.f, 0.f,  1.f, 1.f,
+					1.0f, 0.f,  1.0f,  0.f, 1.f, 0.f,  1.f, 1.f,
 					-1.0f, 0.f, -1.0f,  0.f, 1.f, 0.f,  0.f, 0.f,
-					 1.0f, 0.f, -1.0f,  0.f, 1.f, 0.f,  1.f, 0.f,
+					1.0f, 0.f, -1.0f,  0.f, 1.f, 0.f,  1.f, 0.f,
 				};
 				GLuint vbo;
 				glGenBuffers(1, &vbo);
@@ -49,16 +46,10 @@ namespace gl
 				glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 			}
 			glBindVertexArray(0);
-
-			mBaseColorTex = LoadTexture("../Resource/Skybox/right.jpg");
 		}
 
-		virtual void Draw(const Shader& shader) const override
+		virtual void Draw() const override
 		{
-			shader.SetValue("texture_diffuse1", 0);
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, mBaseColorTex);
 			glBindVertexArray(mVao);
 			{
 				glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -67,6 +58,5 @@ namespace gl
 		}
 
 	private:
-		GLuint mBaseColorTex;
 	};
 }

@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <cassert>
+#include "glm/glm.hpp"
 
 namespace gl
 {

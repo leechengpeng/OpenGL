@@ -41,7 +41,7 @@ namespace gl
 		return texID;
 	}
 
-	unsigned int LoadTexture(char const * path)
+	unsigned int LoadTexture(char const * path, unsigned int mode = GL_CLAMP_TO_EDGE)
 	{
 		unsigned int texID;
 		glGenTextures(1, &texID);
@@ -62,8 +62,8 @@ namespace gl
 			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		}
@@ -74,5 +74,17 @@ namespace gl
 		stbi_image_free(data);
 
 		return texID;
+	}
+
+	void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
+	{
+		// make sure the viewport matches the new window dimensions; note that width and 
+		// height will be significantly larger than specified on retina displays.
+		glViewport(0, 0, width, height);
+	}
+
+	void MouseCallback(GLFWwindow* window, double xpos, double ypos)
+	{
+		gl::Controller::Instance()->MouseCallback(xpos, ypos);
 	}
 }

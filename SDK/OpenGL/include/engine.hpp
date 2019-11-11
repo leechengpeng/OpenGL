@@ -27,7 +27,8 @@ namespace gl
 
 	private:
 		GLfloat						mDeltaTime;
-		GLfloat						mLastFrame;
+		GLfloat						mLastTime;
+		GLfloat						mStartTime;
 		GLFWwindow*					mWindow;
 		std::vector<RenderPass*>	mRenderPasses;
 	};
@@ -74,6 +75,8 @@ namespace gl
 
 	void Engine::Render()
 	{
+		mStartTime = glfwGetTime();
+		mLastTime = mStartTime;
 		for (auto& pass : mRenderPasses)
 		{
 			pass->Init();
@@ -81,9 +84,10 @@ namespace gl
 
 		while (!glfwWindowShouldClose(mWindow))
 		{
-			auto currentFrame = glfwGetTime();
-			mDeltaTime = currentFrame - mLastFrame;
-			mLastFrame = currentFrame;
+			auto current = glfwGetTime();
+			auto passedTime = current - mStartTime;
+			mDeltaTime = current - mLastTime;
+			mLastTime  = current;
 			Controller::Instance()->ProcessInput(mWindow, mDeltaTime);
 
 			glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
@@ -91,7 +95,7 @@ namespace gl
 
 			for (auto& pass : mRenderPasses)
 			{
-				pass->Update();
+				pass->Update(passedTime, mDeltaTime);
 			}
 
 			glfwSwapBuffers(mWindow);
@@ -105,7 +109,6 @@ namespace gl
 	{
 		mRenderPasses.emplace_back(pass);
 	}
-
 
 	inline void Engine::SetFrameBufferSizeCallback(FrameBufferSizeFunc tCallback)
 	{

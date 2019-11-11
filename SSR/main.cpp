@@ -3,7 +3,7 @@
 #include "model.hpp"
 #include "common.hpp"
 #include "controller.hpp"
-#include "common_model.hpp"
+#include "common_mesh.hpp"
 #include <vector>
 #include <random>
 
@@ -127,15 +127,15 @@ namespace gl
 				model = glm::translate(model, glm::vec3(0.f, -3.f, 0.f));
 				model = glm::scale(model, glm::vec3(10.f));
 				mShader.SetMatrix("model", &model[0][0]);
-				mFloor.Draw(mShader);
+				mFloor.Draw();
 			}
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
 	private:
-		Model	mModel;
-		Shader	mShader;
-		Plane	mFloor;
+		Model		mModel;
+		Shader		mShader;
+		PlaneMesh	mFloor;
 		std::vector<glm::vec3> mModelPositions;
 	};
 
