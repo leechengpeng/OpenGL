@@ -24,9 +24,9 @@ namespace gl
 			Controller::Instance()->ResetCamera(glm::vec3(0.f, 0.f, 3.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 
-		virtual void Update(float passedTime, float deltaTime) override
+		virtual void Update(const STime& time) override
 		{
-			mShader.SetValue("_time", passedTime);
+			mShader.SetValue("_time", time._Time.x);
 
 			auto& camera = Controller::Instance()->GetCamera();
 			glm::mat4 model = glm::mat4(1.0f);

@@ -26,7 +26,7 @@ namespace gl
 		void SetCursorPosCallback(CursorPosCallFunc tCallback);
 
 	private:
-		GLfloat						mDeltaTime;
+		STime						mTime;
 		GLfloat						mLastTime;
 		GLfloat						mStartTime;
 		GLFWwindow*					mWindow;
@@ -75,8 +75,7 @@ namespace gl
 
 	void Engine::Render()
 	{
-		mStartTime = glfwGetTime();
-		mLastTime = mStartTime;
+		mLastTime = mStartTime = glfwGetTime();
 		for (auto& pass : mRenderPasses)
 		{
 			pass->Init();
@@ -84,18 +83,20 @@ namespace gl
 
 		while (!glfwWindowShouldClose(mWindow))
 		{
+			// set times
 			auto current = glfwGetTime();
-			auto passedTime = current - mStartTime;
-			mDeltaTime = current - mLastTime;
+			mTime.SetTime(current - mStartTime);
+			mTime.SetDeltalTime(current - mLastTime);
 			mLastTime  = current;
-			Controller::Instance()->ProcessInput(mWindow, mDeltaTime);
+
+			Controller::Instance()->ProcessInput(mWindow, mTime._DeltaTime.x);
 
 			glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			for (auto& pass : mRenderPasses)
 			{
-				pass->Update(passedTime, mDeltaTime);
+				pass->Update(mTime);
 			}
 
 			glfwSwapBuffers(mWindow);
