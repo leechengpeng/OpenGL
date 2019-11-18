@@ -27,13 +27,19 @@ namespace gl
 		}
 	};
 
+	struct SContext
+	{
+		GLuint width;
+		GLuint height;
+	};
+
 	class RenderPass
 	{
 	public:
 		RenderPass() {}
 		virtual ~RenderPass() {}
 
-		virtual void Init() = 0;
-		virtual void Update(const STime& time) = 0;
+		virtual void Init(const SContext& context) = 0;
+		virtual void Update(const SContext& context, const STime& time) = 0;
 	};
 }

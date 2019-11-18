@@ -10,7 +10,7 @@ namespace gl
 	class WaterNoise : public RenderPass
 	{
 	public:
-		virtual void Init() override
+		virtual void Init(const SContext& context) override
 		{
 			// Init shader
 			mShader.AttachShader(GL_VERTEX_SHADER, "Shaders/water_vs.glsl");
@@ -24,7 +24,7 @@ namespace gl
 			Controller::Instance()->ResetCamera(glm::vec3(0.f, 0.f, 3.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 
-		virtual void Update(const STime& time) override
+		virtual void Update(const SContext& context, const STime& time) override
 		{
 			mShader.SetValue("_time", time._Time.x);
 

@@ -27,6 +27,7 @@ namespace gl
 
 	private:
 		STime						mTime;
+		SContext					mContext;
 		GLfloat						mLastTime;
 		GLfloat						mStartTime;
 		GLFWwindow*					mWindow;
@@ -71,16 +72,20 @@ namespace gl
 
 		// Options
 		// glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		// Init context
+		mContext.width = width;
+		mContext.height = height;
 	}
 
 	void Engine::Render()
 	{
-		mLastTime = mStartTime = glfwGetTime();
 		for (auto& pass : mRenderPasses)
 		{
-			pass->Init();
+			pass->Init(mContext);
 		}
 
+		mLastTime = mStartTime = glfwGetTime();
 		while (!glfwWindowShouldClose(mWindow))
 		{
 			// set times
@@ -96,7 +101,7 @@ namespace gl
 
 			for (auto& pass : mRenderPasses)
 			{
-				pass->Update(mTime);
+				pass->Update(mContext, mTime);
 			}
 
 			glfwSwapBuffers(mWindow);
