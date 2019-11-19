@@ -15,25 +15,31 @@ namespace gl
 
 		}
 
+		struct LightInfo
+		{
+			glm::vec3 pos;
+			glm::vec3 color;
+
+			LightInfo(const glm::vec3& pos, const glm::vec3& color) : pos(pos), color(color) {}
+		};
+
 		virtual void Init(const SContext& context) override
 		{
-			// Init
+			// 浮点帧缓冲区：颜色缓冲区格式被显示定义为GL_RGB16F、GL_RGBA16F、GL_RGB32F或者GL_RGBA32F，默认为RGB（8位）
 			glGenFramebuffers(1, &mHDRFrameBuffer);
 			glBindFramebuffer(GL_FRAMEBUFFER, mHDRFrameBuffer);
 			{
-				// color
-				glGenTextures(1, &mHDRColorTex);
-				glBindTexture(GL_TEXTURE_2D, mHDRColorTex);
+				glGenTextures(1, &mFloatColorBuffer);
+				glBindTexture(GL_TEXTURE_2D, mFloatColorBuffer);
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, context.width, context.height, 0, GL_RGBA, GL_FLOAT, NULL);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mHDRColorTex, 0);
-				// depth
-				GLuint rboDepth;
-				glGenRenderbuffers(1, &rboDepth);
-				glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mFloatColorBuffer, 0);
+				GLuint depthBuffer;
+				glGenRenderbuffers(1, &depthBuffer);
+				glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
 				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, context.width, context.height);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
 				// check
 				if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 				{
@@ -42,11 +48,11 @@ namespace gl
 			}
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			// Init Light info
-			mLightInfo.push_back(std::make_pair(glm::vec3(0.0f, 0.0f, 49.5f), glm::vec3(200.0f, 200.0f, 200.0f)));
-			mLightInfo.push_back(std::make_pair(glm::vec3(-1.4f, -1.9f, 9.0f), glm::vec3(0.1f, 0.0f, 0.0f)));
-			mLightInfo.push_back(std::make_pair(glm::vec3(0.0f, -1.8f, 4.0f), glm::vec3(0.0f, 0.0f, 0.2f)));
-			mLightInfo.push_back(std::make_pair(glm::vec3(0.8f, -1.7f, 6.0f), glm::vec3(0.0f, 0.1f, 0.0f)));
+			// Init Light infos
+			mLightInfos.push_back(LightInfo(glm::vec3(0.0f, 0.0f, 49.5f), glm::vec3(200.0f, 200.0f, 200.0f)));
+			mLightInfos.push_back(LightInfo(glm::vec3(-1.4f, -1.9f, 9.0f), glm::vec3(0.1f, 0.0f, 0.0f)));
+			mLightInfos.push_back(LightInfo(glm::vec3(0.0f, -1.8f, 4.0f), glm::vec3(0.0f, 0.0f, 0.2f)));
+			mLightInfos.push_back(LightInfo(glm::vec3(0.8f, -1.7f, 6.0f), glm::vec3(0.0f, 0.1f, 0.0f)));
 
 			// Init Shader
 			mShaderLighting.AttachShader(GL_VERTEX_SHADER, "Shaders/lighting_vs.glsl");
@@ -73,16 +79,16 @@ namespace gl
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				mShaderLighting.Active();
 				{
-					for (GLuint i = 0; i < mLightInfo.size(); ++i)
+					for (GLuint i = 0; i < mLightInfos.size(); ++i)
 					{
-						mShaderLighting.SetValue(("lights[" + std::to_string(i) + "].Position").c_str(), mLightInfo[i].first);
-						mShaderLighting.SetValue(("lights[" + std::to_string(i) + "].Color").c_str(), mLightInfo[i].second);
+						mShaderLighting.SetValue(("lights[" + std::to_string(i) + "].Position").c_str(), mLightInfos[i].pos);
+						mShaderLighting.SetValue(("lights[" + std::to_string(i) + "].Color").c_str(), mLightInfos[i].color);
 					}
 					mShaderLighting.SetValue("viewPos", camera.Position);
 
-					glm::mat4 model = glm::mat4();
+					glm::mat4 model = glm::mat4(1.f);
 					model = glm::translate(model, glm::vec3(0.0f, 0.0f, 25.0));
-					model = glm::scale(model, glm::vec3(5.0f, 5.0f, 55.0f));
+					model = glm::scale(model, glm::vec3(5.f, 5.f, 55.f));
 					glm::mat4 view = camera.GetViewMatrix();
 					glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)context.width / (GLfloat)context.width, 0.1f, 100.0f);
 					mShaderLighting.SetMatrix("model", &model[0][0]);
@@ -98,7 +104,7 @@ namespace gl
 			mShaderToneMapping.Active();
 			{
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, mHDRColorTex);
+				glBindTexture(GL_TEXTURE_2D, mFloatColorBuffer);
 				mShaderToneMapping.SetValue("hdr", mHDR);
 				mShaderToneMapping.SetValue("exposure", mExposure);
 				mQuad.Draw();
@@ -109,14 +115,14 @@ namespace gl
 		QuadMesh	mQuad;
 		CubeMesh	mTunnel;
 
-		GLuint		mHDRColorTex;
+		GLuint		mFloatColorBuffer;
 		GLuint		mHDRFrameBuffer;
 		Shader		mShaderLighting;
 		Shader		mShaderToneMapping;
 		GLboolean	mHDR;
 		GLfloat		mExposure;
 
-		std::vector<std::pair<glm::vec3, glm::vec3>> mLightInfo;
+		std::vector<LightInfo> mLightInfos;
 	};
 }
 
