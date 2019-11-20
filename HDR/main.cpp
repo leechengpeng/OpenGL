@@ -49,15 +49,20 @@ namespace gl
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 			// Init Light infos
-			mLightInfos.push_back(LightInfo(glm::vec3(0.0f, 0.0f, 49.5f), glm::vec3(200.0f, 200.0f, 200.0f)));
-			mLightInfos.push_back(LightInfo(glm::vec3(-1.4f, -1.9f, 9.0f), glm::vec3(0.1f, 0.0f, 0.0f)));
-			mLightInfos.push_back(LightInfo(glm::vec3(0.0f, -1.8f, 4.0f), glm::vec3(0.0f, 0.0f, 0.2f)));
-			mLightInfos.push_back(LightInfo(glm::vec3(0.8f, -1.7f, 6.0f), glm::vec3(0.0f, 0.1f, 0.0f)));
+			mLightInfos.push_back(LightInfo(glm::vec3(0.0f, 0.0f, -49.5f), glm::vec3(200.0f, 200.0f, 200.0f)));
+			mLightInfos.push_back(LightInfo(glm::vec3(-1.4f, -1.9f, -9.0f), glm::vec3(0.1f, 0.0f, 0.0f)));
+			mLightInfos.push_back(LightInfo(glm::vec3(0.0f, -1.8f, -4.0f), glm::vec3(0.0f, 0.0f, 0.2f)));
+			mLightInfos.push_back(LightInfo(glm::vec3(0.8f, -1.7f, -6.0f), glm::vec3(0.0f, 0.1f, 0.0f)));
+
+			// Init Tex
+			mWoodTex = LoadTexture("../Resource/Texture/wood.png");
 
 			// Init Shader
 			mShaderLighting.AttachShader(GL_VERTEX_SHADER, "Shaders/lighting_vs.glsl");
 			mShaderLighting.AttachShader(GL_FRAGMENT_SHADER, "Shaders/lighting_fs.glsl");
 			mShaderLighting.Link();
+			mShaderLighting.Active();
+			mShaderLighting.SetValue("diffuseTexture", 0);
 
 			mShaderToneMapping.AttachShader(GL_VERTEX_SHADER, "Shaders/tone_mapping_vs.glsl");
 			mShaderToneMapping.AttachShader(GL_FRAGMENT_SHADER, "Shaders/tone_mapping_fs.glsl");
@@ -66,7 +71,7 @@ namespace gl
 			mShaderToneMapping.SetValue("hdrBuffer", 0);
 
 			// Init Camera
-			Controller::Instance()->ResetCamera(glm::vec3(0.f, 0.f, 5.f), glm::vec3(0.0f, 1.0f, 0.0f));
+			Controller::Instance()->ResetCamera(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 
 		virtual void Update(const SContext& context, const STime& time) override
@@ -87,13 +92,17 @@ namespace gl
 					mShaderLighting.SetValue("viewPos", camera.Position);
 
 					glm::mat4 model = glm::mat4(1.f);
-					model = glm::translate(model, glm::vec3(0.0f, 0.0f, 25.0));
+					model = glm::translate(model, glm::vec3(0.0f, 0.0f, -25.0));
 					model = glm::scale(model, glm::vec3(5.f, 5.f, 55.f));
 					glm::mat4 view = camera.GetViewMatrix();
-					glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)context.width / (GLfloat)context.width, 0.1f, 100.0f);
+					glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)context.width / (GLfloat)context.width, 0.1f, 1000.0f);
 					mShaderLighting.SetMatrix("model", &model[0][0]);
 					mShaderLighting.SetMatrix("view", &view[0][0]);
 					mShaderLighting.SetMatrix("projection", &projection[0][0]);
+
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, mWoodTex);
+
 					mTunnel.Draw();
 				}
 			}
@@ -115,6 +124,7 @@ namespace gl
 		QuadMesh	mQuad;
 		CubeMesh	mTunnel;
 
+		GLuint		mWoodTex;
 		GLuint		mFloatColorBuffer;
 		GLuint		mHDRFrameBuffer;
 		Shader		mShaderLighting;

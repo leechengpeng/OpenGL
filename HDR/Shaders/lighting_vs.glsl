@@ -15,13 +15,10 @@ out VS_OUT {
 
 void main()
 {
-    vs_out.FragPos = vec3(model * vec4(aPos, 1.0));   
+    vs_out.FragPos   = vec3(model * vec4(aPos, 1.0));
+    // camera在Cube内部，因此需要反转一下法向量
+    vs_out.Normal    = normalize(transpose(inverse(mat3(model))) * -aNormal);
     vs_out.TexCoords = aTexCoords;
-    
-    bool inverse_normals = true;
-    vec3 n = inverse_normals ? -aNormal : aNormal;
-    mat3 normalMatrix = transpose(inverse(mat3(model)));
-    vs_out.Normal = normalize(normalMatrix * n);
     
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }

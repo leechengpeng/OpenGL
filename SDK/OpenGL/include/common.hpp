@@ -41,7 +41,7 @@ namespace gl
 		return texID;
 	}
 
-	unsigned int LoadTexture(char const * path, unsigned int mode = GL_CLAMP_TO_EDGE)
+	unsigned int LoadTexture(char const * path, bool gammaCorrection = true, unsigned int mode = GL_CLAMP_TO_EDGE)
 	{
 		unsigned int texID;
 		glGenTextures(1, &texID);
@@ -50,16 +50,25 @@ namespace gl
 		unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
 		if (data)
 		{
-			GLenum format;
+			GLenum dataFormat;
+			GLenum internalFormat;
 			if (nrComponents == 1)
-				format = GL_RED;
+			{
+				internalFormat = dataFormat = GL_RED;
+			}
 			else if (nrComponents == 3)
-				format = GL_RGB;
+			{
+				internalFormat = gammaCorrection ? GL_SRGB : GL_RGB;
+				dataFormat = GL_RGB;
+			}
 			else if (nrComponents == 4)
-				format = GL_RGBA;
+			{
+				internalFormat = gammaCorrection ? GL_SRGB_ALPHA : GL_RGBA;
+				dataFormat = GL_RGBA;
+			}
 
 			glBindTexture(GL_TEXTURE_2D, texID);
-			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
