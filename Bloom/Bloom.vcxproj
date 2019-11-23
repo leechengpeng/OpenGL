@@ -120,7 +120,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\SDK\OpenGL\lib\glad.c" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\blur_fs.glsl" />
+    <None Include="Shaders\blur_vs.glsl" />
+    <None Include="Shaders\lighting_fs.glsl" />
+    <None Include="Shaders\lighting_vs.glsl" />
+    <None Include="Shaders\renderlights_fs.glsl" />
+    <None Include="Shaders\renderlights_vs.glsl" />
+    <None Include="Shaders\render_to_screen_fs.glsl" />
+    <None Include="Shaders\render_to_screen_vs.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
