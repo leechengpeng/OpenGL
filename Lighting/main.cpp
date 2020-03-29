@@ -8,7 +8,7 @@ namespace gl
 	class Lighting : public RenderPass
 	{
 	public:
-		virtual void Init() override
+		virtual void Init(const SContext& context) override
 		{
 			// floor data buffer
 			glGenVertexArrays(1, &mFloorVao);
@@ -39,7 +39,7 @@ namespace gl
 			//Controller::Instance()->ResetCamera(glm::vec3(0.f, 1.f, 2.f), glm::vec3(0.f, 1.f, 0.f));
 		}
 
-		virtual void Update() override
+		virtual void Update(const SContext& context, const STime& time) override
 		{
 			auto& camera = Controller::Instance()->GetCamera();
 
