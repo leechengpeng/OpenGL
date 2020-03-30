@@ -38,7 +38,7 @@ namespace gl
 			mLightColor.push_back(glm::vec3(300.0f, 300.0f, 300.0f));
 			mLightColor.push_back(glm::vec3(300.0f, 300.0f, 300.0f));
 
-			Controller::Instance()->ResetCamera(glm::vec3(0.f, 0.f, 3.f), glm::vec3(0.f, -1.f, 0.f));
+			Controller::Instance()->ResetCamera(glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f, -1.f, 0.f));
 		}
 
 		virtual void Update(const SContext& context, const STime& time) override
@@ -79,7 +79,7 @@ namespace gl
 			// render light source (simply re-render sphere at light positions)
 			// this looks a bit off as we use the same shader, but it'll make their positions obvious and 
 			// keeps the codeprint small.
-			for (unsigned int i = 0; i < sizeof(mLightPos) / sizeof(mLightPos[0]); ++i)
+			for (unsigned int i = 0; i < mLightPos.size(); ++i)
 			{
 				glm::vec3 newPos = mLightPos[i] + glm::vec3(sin(glfwGetTime() * 5.0) * 5.0, 0.0, 0.0);
 				newPos = mLightPos[i];
@@ -95,8 +95,8 @@ namespace gl
 		}
 
 	private:
-		GLuint  mRows;
-		GLuint  mColumns;
+		GLint   mRows;
+		GLint   mColumns;
 		GLfloat mSpacing;
 
 		Sphere  mSphere;
