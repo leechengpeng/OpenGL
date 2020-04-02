@@ -11,7 +11,7 @@ namespace gl
 	class PBR : public RenderPass
 	{
 	public:
-		PBR() : mRows(7), mColumns(7), mSpacing(2.5)
+		PBR() : mRows(7), mColumns(7), mSpacing(2.5), mAlbedoMap(), mNormalMap(), mMetallicMap(), mRoughnessMap(), mAoMap()
 		{
 
 		}
@@ -20,13 +20,26 @@ namespace gl
 		{
 			glEnable(GL_DEPTH_TEST);
 
+			// Load textures
+			mAlbedoMap = LoadTexture("../Resource/pbr_rustediron/rustediron2_basecolor.png");
+			mNormalMap = LoadTexture("../Resource/pbr_rustediron/rustediron2_normal.png");
+			mMetallicMap = LoadTexture("../Resource/pbr_rustediron/rustediron2_metallic.png");
+			mRoughnessMap = LoadTexture("../Resource/pbr_rustediron/rustediron2_roughness.png");
+			//mAoMap = LoadTexture("../Resource/pbr_rustediron/");
+
 			// Init shader pbr
 			mShaderPBR.AttachShader(GL_VERTEX_SHADER, "Shaders/pbr_vs.glsl");
 			mShaderPBR.AttachShader(GL_FRAGMENT_SHADER, "Shaders/pbr_fs.glsl");
 			mShaderPBR.Link();
 			mShaderPBR.Active();
-			mShaderPBR.SetValue("ao", 1.0f);
-			mShaderPBR.SetValue("albedo", glm::vec3(0.5f, 0.0f, 0.0f));
+			//mShaderPBR.SetValue("ao", 1.0f);
+			//mShaderPBR.SetValue("albedo", glm::vec3(0.5f, 0.0f, 0.0f));
+			mShaderPBR.SetValue("albedoMap", 0);
+			mShaderPBR.SetValue("normalMap", 1);
+			mShaderPBR.SetValue("metallicMap", 2);
+			mShaderPBR.SetValue("roughnessMap", 3);
+			//mShaderPBR.SetValue("aoMap", 4);
+			
 
 			// Set light attributes
 			mLightPos.push_back(glm::vec3(-10.0f, 10.0f, 10.0f));
@@ -54,6 +67,15 @@ namespace gl
 			mShaderPBR.SetValue("camPos", camera.Position);
 			mShaderPBR.SetMatrix("view", &viewMat[0][0]);
 			mShaderPBR.SetMatrix("projection", &projMat[0][0]);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, mAlbedoMap);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, mNormalMap);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, mMetallicMap);
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, mRoughnessMap);
 
 			// render rows*column number of spheres with varying metallic/roughness values scaled by rows and columns respectively
 			for (int row = 0; row < mRows; ++row)
@@ -98,6 +120,12 @@ namespace gl
 		GLint   mRows;
 		GLint   mColumns;
 		GLfloat mSpacing;
+
+		GLint   mAlbedoMap;
+		GLint   mNormalMap;
+		GLint   mMetallicMap;
+		GLint   mRoughnessMap;
+		GLint   mAoMap;
 
 		Sphere  mSphere;
 		Shader  mShaderPBR;
