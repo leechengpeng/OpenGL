@@ -2,24 +2,26 @@
 
 out vec4 FragColor;
 
-in vec2 TexCoords;
 in vec3 WorldPos;
 in vec3 Normal;
+in vec2 TexCoords;
 
 // material parameters
-uniform sampler2D albedoMap;
-uniform sampler2D normalMap;
-uniform sampler2D metallicMap;
-uniform sampler2D roughnessMap;
-// uniform vec3  albedo;
-// uniform float metallic;
-// uniform float roughness;
+uniform vec3  uAlbedo;
+uniform float uMetallic;
+uniform float uRoughness;
+uniform bool  uUseBasicMaterialParms;
+uniform sampler2D uAlbedoMap;
+uniform sampler2D uNormalMap;
+uniform sampler2D uMetallicMap;
+uniform sampler2D uRoughnessMap;
 
 // lights
 uniform vec3 uLightPos[4];
 uniform vec3 uLightColor[4];
 
-uniform vec3 camPos;
+// other
+uniform vec3 uCamPos;
 
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
@@ -65,13 +67,26 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 void main()
 {
-    vec3  albedo    = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
-    float metallic  = texture(metallicMap, TexCoords).r;
-    float roughness = texture(roughnessMap, TexCoords).r;
+    vec3  albedo    = vec3(1.0);
+    float metallic  = 1.0;
+    float roughness = 1.0;
     float ao        = 1.0;
 
+    if (uUseBasicMaterialParms)
+    {
+        albedo    = uAlbedo;
+        metallic  = uMetallic;
+        roughness = uRoughness;
+    }
+    else
+    {
+        albedo    = pow(texture(uAlbedoMap, TexCoords).rgb, vec3(2.2));
+        metallic  = texture(uMetallicMap, TexCoords).r;
+        roughness = texture(uRoughnessMap, TexCoords).r;
+    }
+
     vec3 N = normalize(Normal);
-    vec3 V = normalize(camPos - WorldPos);
+    vec3 V = normalize(uCamPos - WorldPos);
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -120,6 +135,7 @@ void main()
 
     vec3 color = ambient + Lo;
 
+    // color = albedo;
     // HDR tonemapping
     color = color / (color + vec3(1.0));
     // gamma correct
