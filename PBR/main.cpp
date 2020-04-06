@@ -55,7 +55,7 @@ namespace gl
 			mLightColor.push_back(glm::vec3(300.0f, 300.0f, 300.0f));
 			mLightColor.push_back(glm::vec3(300.0f, 300.0f, 300.0f));
 
-			Controller::Instance()->ResetCamera(glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f, -1.f, 0.f));
+			Controller::Instance()->ResetCamera(glm::vec3(0.f, 0.f, 15.f), glm::vec3(0.f, 1.f, 0.f));
 		}
 
 		virtual void Update(const SContext& context, const STime& time) override
