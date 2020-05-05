@@ -11,7 +11,7 @@ namespace gl
 	class PBR : public RenderPass
 	{
 	public:
-		PBR() : mRows(7), mColumns(7), mSpacing(2.5), mAlbedoMap(), mNormalMap(), mMetallicMap(), mRoughnessMap(), mUseBasicMaterialParms(true)
+		PBR() : mRows(7), mColumns(7), mSpacing(2.5), mAlbedoMap(), mNormalMap(), mMetallicMap(), mRoughnessMap(), mUseBasicMaterialParms(false)
 		{
 
 		}
@@ -60,6 +60,9 @@ namespace gl
 
 		virtual void Update(const SContext& context, const STime& time) override
 		{
+			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 			auto& camera = Controller::Instance()->GetCamera();
 
 			glm::mat4 modelMat = glm::mat4(1.0f);
@@ -98,6 +101,7 @@ namespace gl
 					if (mUseBasicMaterialParms)
 					{
 						mShaderPBR.SetValue("uRoughness", glm::clamp((float)col / (float)mColumns, 0.05f, 1.0f));
+						//mShaderPBR.SetValue("uRoughness", 1.0f);
 					}
 
 					modelMat = glm::mat4(1.0f);
