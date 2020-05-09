@@ -41,7 +41,7 @@ namespace gl
 		return texID;
 	}
 
-	unsigned int LoadTexture(char const * path, bool gammaCorrection = true, unsigned int mode = GL_CLAMP_TO_EDGE)
+	unsigned int LoadTexture(char const * path, bool gammaCorrection = false, unsigned int mode = GL_CLAMP_TO_EDGE)
 	{
 		unsigned int texID;
 		glGenTextures(1, &texID);
