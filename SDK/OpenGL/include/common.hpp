@@ -41,7 +41,7 @@ namespace gl
 		return texID;
 	}
 
-	unsigned int LoadTexture(char const * path, bool gammaCorrection = false, unsigned int mode = GL_CLAMP_TO_EDGE)
+	unsigned int LoadTexture(char const* path, bool gammaCorrection = false, unsigned int mode = GL_CLAMP_TO_EDGE)
 	{
 		unsigned int texID;
 		glGenTextures(1, &texID);
@@ -81,6 +81,36 @@ namespace gl
 			std::cout << "Texture failed to load at path: " << path << std::endl;
 		}
 		stbi_image_free(data);
+
+		return texID;
+	}
+
+	unsigned int LoadTextureHDR(char const* path)
+	{
+		unsigned int texID;
+		glGenTextures(1, &texID);
+
+		int width, height, nrComponents;
+		stbi_set_flip_vertically_on_load(true);
+		auto pData = stbi_loadf(path, &width, &height, &nrComponents, 0);
+		if (pData)
+		{
+
+			glGenTextures(1, &texID);
+			glBindTexture(GL_TEXTURE_2D, texID);
+			// Note how we specify the texture's data value to be float
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, pData);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		}
+		else
+		{
+			std::cout << "Failed to load HDR image." << std::endl;
+		}
+		stbi_image_free(pData);
 
 		return texID;
 	}
