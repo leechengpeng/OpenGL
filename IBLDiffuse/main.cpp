@@ -25,20 +25,23 @@ namespace gl
 			glDepthFunc(GL_LEQUAL); // set depth function to less than AND equal for skybox depth trick.
 
 			// Init shader
-			mEquirectangularToCubemapShader.AttachShader(GL_VERTEX_SHADER,		"Shaders/cubemap.vs");
-			mEquirectangularToCubemapShader.AttachShader(GL_FRAGMENT_SHADER,	"Shaders/equirectangular_to_cubemap.fs");
-			mEquirectangularToCubemapShader.Link();
+			{
+				mEquirectangularToCubemapShader.AttachShader(GL_VERTEX_SHADER,		"Shaders/cubemap.vs");
+				mEquirectangularToCubemapShader.AttachShader(GL_FRAGMENT_SHADER,	"Shaders/equirectangular_to_cubemap.fs");
+				mEquirectangularToCubemapShader.Link();
 
-			mBackgroundShader.AttachShader(GL_VERTEX_SHADER,	"Shaders/background.vs");
-			mBackgroundShader.AttachShader(GL_FRAGMENT_SHADER,	"Shaders/background.fs");
-			mBackgroundShader.Link();
-			mBackgroundShader.Active();
-			mBackgroundShader.SetValue("environmentMap", 0);
+				mIrradianceShader.AttachShader(GL_VERTEX_SHADER,	"Shaders/cubemap.vs");
+				mIrradianceShader.AttachShader(GL_FRAGMENT_SHADER,	"Shaders/irradiance_convolution.fs");
+				mIrradianceShader.Link();
+				mIrradianceShader.Active();
+				mIrradianceShader.SetValue("environmentMap", 0);
 
-			mIrradianceShader.AttachShader(GL_VERTEX_SHADER,	"Shaders/cubemap.vs");
-			mIrradianceShader.AttachShader(GL_FRAGMENT_SHADER,	"Shaders/irradiance_convolution.fs");
-			mBackgroundShader.Link();
-
+				mBackgroundShader.AttachShader(GL_VERTEX_SHADER,	"Shaders/background.vs");
+				mBackgroundShader.AttachShader(GL_FRAGMENT_SHADER,	"Shaders/background.fs");
+				mBackgroundShader.Link();
+				mBackgroundShader.Active();
+				mBackgroundShader.SetValue("environmentMap", 0);
+			}
 
 			// Setup framebuffer
 			unsigned int captureFBO;
@@ -49,13 +52,9 @@ namespace gl
 			glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
-			
-			// Setup cubemap to render to and attach to framebuffer
-			mEnvCubeMap = _CreateEmptyCubeMap(mEnvCubeMapSize);
 
 			glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-			glm::mat4 captureViews[] =
-			{
+			std::vector<glm::mat4> captureViews = {
 				glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
 				glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
 				glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
@@ -67,6 +66,9 @@ namespace gl
 			// Convert HDR equirectangular environment map to cubemap equivalent
 			mEquirectangularToCubemapShader.Active();
 			{
+				// Setup cubemap to render to and attach to framebuffer
+				mEnvCubeMap = _CreateEmptyCubeMap(mEnvCubeMapSize);
+
 				mEquirectangularToCubemapShader.SetValue("equirectangularMap", 0);
 				mEquirectangularToCubemapShader.SetMatrix("projection", captureProjection);
 
@@ -86,34 +88,37 @@ namespace gl
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
 
-			// Create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
-			mIrradianceMap = _CreateEmptyCubeMap(mIrradianceMapSize);
-
-			glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-			glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
-
 			// pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
 			// -----------------------------------------------------------------------------
 			mIrradianceShader.Active();
-			mIrradianceShader.SetValue("environmentMap", 0);
-			mIrradianceShader.SetMatrix("projection", captureProjection);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, mEnvCubeMap);
-
-			glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
-			glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-			for (unsigned int i = 0; i < 6; ++i)
 			{
-				mIrradianceShader.SetMatrix("view", captureViews[i]);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mIrradianceMap, 0);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				// Create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
+				mIrradianceMap = _CreateEmptyCubeMap(mIrradianceMapSize);
 
-				mCube.Draw();
+				glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+				glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
+
+				mIrradianceShader.SetMatrix("projection", captureProjection);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, mEnvCubeMap);
+
+				glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
+				glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+				{
+					for (unsigned int i = 0; i < 6; ++i)
+					{
+						mIrradianceShader.SetMatrix("view", captureViews[i]);
+						glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mIrradianceMap, 0);
+						glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+						mCube.Draw();
+					}
+				}
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			// Then before rendering, configure the viewport to the original framebuffer's screen dimensions
+			// 渲染之前，还原窗口的尺寸
 			glViewport(0, 0, context.width, context.height);
 		}
 
@@ -133,8 +138,8 @@ namespace gl
 			mBackgroundShader.SetMatrix("view",			viewMat);
 			mBackgroundShader.SetMatrix("projection",	projMat);
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, mEnvCubeMap);
-			//glBindTexture(GL_TEXTURE_CUBE_MAP, mIrradianceMap); // display irradiance map
+			//glBindTexture(GL_TEXTURE_CUBE_MAP, mEnvCubeMap);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, mIrradianceMap); // display irradiance map
 			mCube.Draw();
 		}
 
