@@ -114,11 +114,12 @@ void main()
     
     // ambient lighting (we now use IBL as the ambient term)
     vec3 kS = FresnelSchlick(max(dot(N, V), 0.0), F0);
-    vec3 kD = 1.0 - kS;
-    kD *= 1.0 - metallic;	  
-    vec3 irradiance = texture(uIrradianceMap, N).rgb;
-    vec3 diffuse      = irradiance * albedo;
-    vec3 ambient = (kD * diffuse) * ao;
+    vec3 kD = (1.0 - kS) * (1.0 - metallic);
+    vec3 diffuse = texture(uIrradianceMap, N).rgb * albedo * kD;
+    vec3 ambient = diffuse * ao;
+    
+    // without irradiancemap
+    // vec3 ambient = vec3(0.03) * albedo * ao;
 
     vec3 color = ambient + Lo;
 
