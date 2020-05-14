@@ -13,6 +13,7 @@ namespace gl
 	{
 	public:
 		Shader();
+		Shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path);
 		~Shader();
 
 		void AttachShader(GLuint shader_type, const std::string& shader_path) const;
@@ -40,6 +41,13 @@ namespace gl
 	Shader::Shader() : program_(0)
 	{
 		program_ = glCreateProgram();
+	}
+
+	Shader::Shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path) : program_(0)
+	{
+		program_ = glCreateProgram();
+		AttachVertexShader(vertex_shader_path);
+		AttachFragmentShader(fragment_shader_path);
 	}
 
 	Shader::~Shader()
