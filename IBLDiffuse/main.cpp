@@ -40,14 +40,13 @@ namespace gl
 			mBackgroundShader.SetValue("environmentMap", 0);
 
 			// Setup framebuffer
-			unsigned int captureFBO;
-			unsigned int captureRBO;
-			glGenFramebuffers(1, &captureFBO);
-			glGenRenderbuffers(1, &captureRBO);
-			glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-			glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
+			GLuint fbo;
+			{
+				GLuint rbo;
+				glGenFramebuffers(1, &fbo);
+				glGenRenderbuffers(1, &rbo);
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+			}
 
 			glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 			std::vector<glm::mat4> captureViews = {
@@ -58,8 +57,8 @@ namespace gl
 				glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
 				glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 			};
-			mEnvCubeMap	= _EquirectangularToCubemap(captureViews, captureProjection, captureFBO);
-			mIrradianceMap = _CubemapToIrradiancemap(captureViews, captureProjection, captureFBO);
+			mEnvCubeMap	= _EquirectangularToCubemap(captureViews, captureProjection, fbo);
+			mIrradianceMap = _CubemapToIrradiancemap(captureViews, captureProjection, fbo);
 
 			// Set light attributes
 			mLightPos.push_back(glm::vec3(-10.0f, 10.0f, 10.0f));
@@ -144,7 +143,7 @@ namespace gl
 				mBackgroundShader.SetMatrix("view", viewMat);
 				mBackgroundShader.SetMatrix("projection", projMat);
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, mEnvCubeMap);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, mIrradianceMap);
 				mCube.Draw();
 			}
 		}
@@ -180,11 +179,14 @@ namespace gl
 				equirectangularToCubemapShader.SetValue("equirectangularMap", 0);
 				equirectangularToCubemapShader.SetMatrix("projection", proj);
 
+				auto hdr = LoadTextureHDR("../Resource/HDR/Newport_Loft_Ref.hdr");
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, LoadTextureHDR("../Resource/HDR/Newport_Loft_Ref.hdr"));
+				glBindTexture(GL_TEXTURE_2D, hdr);
 
-				glViewport(0, 0, mEnvCubeMapSize, mEnvCubeMapSize); // don't forget to configure the viewport to the capture dimensions.
+				// Don't forget to configure the viewport to the capture dimensions.
+				glViewport(0, 0, mEnvCubeMapSize, mEnvCubeMapSize);
 				glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mEnvCubeMapSize, mEnvCubeMapSize);
 				for (unsigned int i = 0; i < cubeViews.size(); ++i)
 				{
 					equirectangularToCubemapShader.SetMatrix("view", cubeViews[i]);
@@ -216,6 +218,7 @@ namespace gl
 
 				glViewport(0, 0, mIrradianceMapSize, mIrradianceMapSize);
 				glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mIrradianceMapSize, mIrradianceMapSize);
 				for (unsigned int i = 0; i < cubeViews.size(); ++i)
 				{
 					irradianceShader.SetMatrix("view", cubeViews[i]);

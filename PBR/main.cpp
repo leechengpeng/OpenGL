@@ -11,7 +11,7 @@ namespace gl
 	class PBR : public RenderPass
 	{
 	public:
-		PBR() : mRows(7), mColumns(7), mSpacing(2.5), mAlbedoMap(), mNormalMap(), mMetallicMap(), mRoughnessMap(), mUseBasicMaterialParms(false)
+		PBR() : mRows(7), mColumns(7), mSpacing(2.5), mAlbedoMap(), mNormalMap(), mMetallicMap(), mRoughnessMap(), mUseBasicMaterialParms(true)
 		{
 
 		}
