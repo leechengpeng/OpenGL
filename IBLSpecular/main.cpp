@@ -67,10 +67,10 @@ namespace gl
 			};
 
 			// Preprocess
-			mEnvCubeMap = _EquirectangularToCubemap(captureViews, captureProjection, fbo);
-			mIrradianceMap = _CubemapToIrradianceMap(captureViews, captureProjection, fbo, rbo, mEnvCubeMap);
-			mPrefilterMap = _CubemapToPrefilterMap(captureViews, captureProjection, fbo, rbo, mEnvCubeMap);
-			mBRDFLutMap = _GenBRDFLUT(fbo, rbo);
+			mEnvCubeMap		= _EquirectangularToCubemap(captureViews, captureProjection, fbo);
+			mIrradianceMap	= _CubemapToIrradianceMap(captureViews, captureProjection, fbo, rbo, mEnvCubeMap);
+			mPrefilterMap	= _CubemapToPrefilterMap(captureViews, captureProjection, fbo, rbo, mEnvCubeMap);
+			mBRDFLutMap		= _GenBRDFLUT(fbo, rbo);
 
 			// Set light attributes
 			mLightPos.push_back(glm::vec3(-10.0f, 10.0f, 10.0f));
@@ -165,30 +165,12 @@ namespace gl
 		}
 
 	private:
-		GLuint _CreateEmptyCubeMap(GLuint size) const
-		{
-			GLuint mEmptyCubeMap;
-			glGenTextures(1, &mEmptyCubeMap);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, mEmptyCubeMap);
-			for (unsigned int i = 0; i < 6; ++i)
-			{
-				// 数据先设置为空
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, size, size, 0, GL_RGB, GL_FLOAT, nullptr);
-			}
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			return mEmptyCubeMap;
-		}
-
 		GLuint _EquirectangularToCubemap(const std::vector<glm::mat4>& cubeViews, const glm::mat4& proj, GLuint fbo) const
 		{
 			Shader equirectangularToCubemapShader("Shaders/cubemap.vs", "Shaders/equirectangular_to_cubemap.fs");
 			equirectangularToCubemapShader.Link();
 
-			auto cubeMap = _CreateEmptyCubeMap(mEnvCubeMapSize);
+			auto cubeMap = CreateEmptyCubeMap(mEnvCubeMapSize);
 			// Convert HDR equirectangular environment map to cubemap equivalent
 			equirectangularToCubemapShader.Active();
 			{
@@ -220,7 +202,7 @@ namespace gl
 			Shader irradianceShader("Shaders/cubemap.vs", "Shaders/irradiance_convolution.fs");
 			irradianceShader.Link();
 
-			auto irradianceMap = _CreateEmptyCubeMap(mIrradianceMapSize);
+			auto irradianceMap = CreateEmptyCubeMap(mIrradianceMapSize);
 			// Solve diffuse integral by convolution to create an irradiance (cube)map.
 			irradianceShader.Active();
 			{
@@ -253,7 +235,7 @@ namespace gl
 			prefilterShader.Link();
 
 			GLuint prefilterMapSize = 128;
-			auto prefilterMap = _CreateEmptyCubeMap(prefilterMapSize);
+			GLuint prefilterMap		= CreateEmptyCubeMapMipmap(prefilterMapSize);
 
 			// pbr: run a quasi monte-carlo simulation on the environment lighting to create a prefilter (cube)map.
 			prefilterShader.Active();
@@ -346,24 +328,12 @@ namespace gl
 	};
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	gl::Controller::Instance()->MouseCallback(xpos, ypos);
-}
-
 int main()
 {
 	gl::Engine engine;
 	engine.Init(1280, 720);
-	engine.SetFrameBufferSizeCallback(framebuffer_size_callback);
-	engine.SetCursorPosCallback(mouse_callback);
+	engine.SetFrameBufferSizeCallback(gl::FramebufferSizeCallback);
+	engine.SetCursorPosCallback(gl::MouseCallback);
 
 	gl::IBLDiffuse diffuse;
 	engine.AddPass(&diffuse);
